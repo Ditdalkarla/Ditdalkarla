@@ -1,0 +1,55 @@
+<script>
+  const map = L.map('map').setView([-1.5, 117], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  // Contoh satu titik untuk uji coba
+  const geojson = {
+    type: "FeatureCollection",
+    features: [{
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [122.758, -8.53474] },
+      properties: {
+        "Tanggal (YYYY-MM-DD)": "2025-07-10T17:00:00.000Z",
+        "Jam (HH:MM:SS)": "1899-12-30T12:45:48.000Z",
+        Provinsi: "NTT",
+        "Kab/Kota": "Flores Timur",
+        Kecamatan: "Ile Bura",
+        Desa: "Nurri",
+        Latitude: -8.53474,
+        Longitude: 122.758,
+        Confidence_Level: "medium",
+        Sumber: "NASA-MODIS"
+      }
+    }]
+  };
+
+  const fireIcon = (color) => L.icon({
+    iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Fire_icon.svg/48px-Fire_icon.svg.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -16]
+  });
+
+  geojson.features.forEach(f => {
+    const p = f.properties;
+    const lat = p.Latitude;
+    const lng = p.Longitude;
+    const level = (p.Confidence_Level || '').toLowerCase();
+    const color = level === 'high' ? 'red' : 'yellow';
+    const icon = fireIcon(color);
+
+    const marker = L.marker([lat, lng], { icon: icon, opacity: 0.5 }).addTo(map);
+    marker.bindPopup(`
+      <strong>${p["Tanggal (YYYY-MM-DD)"]?.split("T")[0]}</strong><br/>
+      Jam: ${p["Jam (HH:MM:SS)"]?.split("T")[1]?.split('.')[0]}<br/>
+      Provinsi: ${p.Provinsi}<br/>
+      Kab/Kota: ${p["Kab/Kota"]}<br/>
+      Kec: ${p.Kecamatan}<br/>
+      Desa: ${p.Desa}<br/>
+      Confidence: ${p.Confidence_Level}<br/>
+      Sumber: ${p.Sumber}
+    `);
+  });
+</script>
